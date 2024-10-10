@@ -86,8 +86,46 @@ const insertAllStats = async (req, res) => {
 
 cron.schedule("0 */2 * * *", insertAllStats);
 
+
+function calculateStandardDeviation(prices) {
+  const mean = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+  const variance =
+    prices.reduce((sum, price) => sum + Math.pow(price - mean, 2), 0) /
+    prices.length;
+  return Math.sqrt(variance);
+}
+
+const deviation = async (req, res) => {
+  const { coin } = req.query;
+
+  if (!coin) {
+    return res.status(400).json({ error: "Please provide a coin name" });
+  }
+
+  try {
+    const prices = await Crypto.find({ coin })
+      .sort({ timestamp: -1 })
+      .limit(100)
+      .select("price");
+
+    if (!prices.length) {
+      return res
+        .status(404)
+        .json({ error: "Not enough data for the requested coin" });
+    }
+
+    const priceValues = prices.map((doc) => doc.price);
+    const deviation = calculateStandardDeviation(priceValues);
+
+    res.json({ deviation: deviation.toFixed(2) });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
   createInitialConnection,
   insertAllStats,
-  getStats
+  getStats,
+  deviation
 };
