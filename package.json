@@ -1,0 +1,11 @@
+{
+  "name": "koinx_task",
+  "version": "1.0.0",
+  "description": "Initial task given for internship offer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pradeep Kumar",
+  "license": "ISC"
+}
